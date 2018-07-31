@@ -1,27 +1,37 @@
 #!/usr/bin/env python
-import time
-from energenie import encoder, radio
+import sys
+sys.path.append(1, "/home/homeassistant/lib/pyenergenie/src/")
 
-INNER_TIMES = 16
-OUTER_TIMES = 1
+import time
+import energenie
+
 APP_DELAY = 1
 
-HOUSE_ADDRESS = None
+# Devices that use the standard Energenie house code
+all_sockets = energenie.Devices.ENER002(0)
+socket1     = energenie.Devices.ENER002(1)
+socket2     = energenie.Devices.ENER002(2)
+socket3     = energenie.Devices.ENER002(3)
+socket4     = energenie.Devices.ENER002(4)
 
-ALL_ON     = encoder.build_switch_msg(True,                    house_address=HOUSE_ADDRESS)
-ONE_ON     = encoder.build_switch_msg(True,  device_address=1, house_address=HOUSE_ADDRESS)
-TWO_ON     = encoder.build_switch_msg(True,  device_address=2, house_address=HOUSE_ADDRESS)
-THREE_ON   = encoder.build_switch_msg(True,  device_address=3, house_address=HOUSE_ADDRESS)
-FOUR_ON    = encoder.build_switch_msg(True,  device_address=4, house_address=HOUSE_ADDRESS)
-ON_MSGS    = [ALL_ON, ONE_ON, TWO_ON, THREE_ON, FOUR_ON]
+# A device that uses a custom house code (e.g. learnt from a hand controller)
+socket5     = energenie.Devices.ENER002((0x1234, 1))
 
-ALL_OFF    = encoder.build_switch_msg(False,                   house_address=HOUSE_ADDRESS)
-ONE_OFF    = encoder.build_switch_msg(False, device_address=1, house_address=HOUSE_ADDRESS)
-TWO_OFF    = encoder.build_switch_msg(False, device_address=2, house_address=HOUSE_ADDRESS)
-THREE_OFF  = encoder.build_switch_msg(False, device_address=3, house_address=HOUSE_ADDRESS)
-FOUR_OFF   = encoder.build_switch_msg(False, device_address=4, house_address=HOUSE_ADDRESS)
-OFF_MSGS   = [ALL_OFF, ONE_OFF, TWO_OFF, THREE_OFF, FOUR_OFF]
+# A MiHome device that we know the address of from a previous capture
+socket6     = energenie.Devices.MIHO005(0x68b)
 
-radio.transmit(ON_MSGS[1], OUTER_TIMES, INNER_TIMES)
-time.sleep(APP_DELAY)
-radio.transmit(OFF_MSGS[1], OUTER_TIMES, INNER_TIMES)
+sockets     = [all_sockets, socket1, socket2, socket3, socket4, socket5, socket6]
+
+
+if __name__ == "__main__":
+    energenie.init()
+    socket_no = 1
+    try:
+        print("socket %d ON" % socket_no)
+        sockets[socket_no].turn_on()
+        time.sleep(APP_DELAY)
+        print("socket %d OFF" % socket_no)
+        sockets[socket_no].turn_off()
+        time.sleep(APP_DELAY)
+    finally:
+        energenie.finished()
