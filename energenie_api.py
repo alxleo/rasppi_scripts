@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-sys.path.append(1, "/home/homeassistant/lib/pyenergenie/src/")
+sys.path.append("/home/homeassistant/lib/pyenergenie/src/")
 
 import time
 import energenie
@@ -25,7 +25,7 @@ sockets     = [all_sockets, socket1, socket2, socket3, socket4, socket5, socket6
 
 if __name__ == "__main__":
     energenie.init()
-    socket_no = 1
+    socket_no = 2
     try:
         print("socket %d ON" % socket_no)
         sockets[socket_no].turn_on()
